@@ -1,5 +1,5 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::*;
+use crate::{BorshSchemaTS, generate_layout_from_file};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use serde::Serialize;
@@ -7,6 +7,7 @@ use solana_program::pubkey::Pubkey;
 
 use std::fs;
 use std::io::Write;
+use borsh::BorshSchema;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,14 +21,14 @@ struct TestData {
     enum_variant_g: Vec<u8>,
 }
 
-#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchema, BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct RandomStruct {
     field_a: String,
     field_b: Option<[u8; 2]>,
 }
 
 #[allow(clippy::enum_variant_names)]
-#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchema, BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub enum TestEnum {
     VariantA,
     VariantB,

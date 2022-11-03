@@ -20,6 +20,7 @@ use std::fs;
 use std::io::Write;
 use std::path::Path;
 
+
 /// Traverses all files in the input directory and looks for data structures
 /// that should be converted into TypeScript and borsh layouts.
 pub fn generate_layouts(directory: impl AsRef<Path>) -> Result<Vec<Layout>, anyhow::Error> {
@@ -51,7 +52,7 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
             syn::Item::Struct(ref item_struct) => {
                 for attr in &item_struct.attrs {
                     let attribute_string = attr.tokens.to_string();
-                    if attribute_string.contains("BorshSchema") {
+                    if attribute_string.contains(crate::ATTRIBUTE_LABEL) {
                         layouts.push(Layout::from_tokens(
                             &item_struct.ident.to_string(),
                             &mut item_struct.fields.iter(),
@@ -62,7 +63,7 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
             syn::Item::Enum(ref item_enum) => {
                 for attr in &item_enum.attrs {
                     let attribute_string = attr.tokens.to_string();
-                    if attribute_string.contains("BorshSchema") {
+                    if attribute_string.contains(crate::ATTRIBUTE_LABEL) {
                         let mut enum_layout = Layout {
                             name: item_enum.ident.to_string(),
                             kind: Kind::Enum,

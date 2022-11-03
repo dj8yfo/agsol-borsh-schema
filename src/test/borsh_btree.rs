@@ -1,5 +1,5 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::*;
+use crate::{BorshSchemaTS, generate_layout_from_file};
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program::pubkey::Pubkey;
@@ -8,7 +8,8 @@ use std::collections::BTreeMap;
 use std::fs;
 use std::io::Write;
 
-#[derive(BorshSchema, BorshSerialize, BorshDeserialize)]
+
+#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize)]
 pub struct BTreeWrapper {
     map0: BTreeMap<[u8; 32], Pubkey>,
     map1: BTreeMap<String, Option<u32>>,

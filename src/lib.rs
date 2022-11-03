@@ -4,14 +4,14 @@
 //! [`borsh-js`](https://github.com/near/borsh-js) and
 //! [`borsh-rs`](https://docs.rs/borsh/0.9.1/borsh/index.html) for more details.
 //!
-//! By default the library provides a derivable trait `BorshSchema` without any
+//! By default the library provides a derivable trait `BorshSchemaTS` without any
 //! associated methods and constants. It's an empty trait that is essentially a
 //! flag for the schema parser that works the following way:
 //!
 //! 1) the parser traverses all `.rs` files in the provided input directory
 //!
 //! 2) data structures (`struct`s and `enum`s) annotated with
-//!    `#[derive(BorshSchema, ...)]` are parsed into an intermediate data
+//!    `#[derive(BorshSchemaTS, ...)]` are parsed into an intermediate data
 //!    structure
 //!
 //! 3) the intermediate data structure is used to generate output files
@@ -44,12 +44,12 @@ pub use utils::*;
 ///
 /// # Example
 /// ```rust
-/// use agsol_borsh_schema::BorshSchema;
+/// use agsol_borsh_schema::BorshSchemaTS;
 /// use std::collections::BTreeMap;
 ///
 /// type SomeAlias = [u8; 32];
 ///
-/// #[derive(BorshSchema)]
+/// #[derive(BorshSchemaTS)]
 /// struct Foo {
 ///     foo: Option<u64>,
 ///     bar: BTreeMap<u8, Bar>,
@@ -57,7 +57,7 @@ pub use utils::*;
 ///     baz: SomeAlias,
 /// }
 ///
-/// #[derive(BorshSchema)]
+/// #[derive(BorshSchemaTS)]
 /// enum Bar {
 ///     A,
 ///     B,
@@ -70,8 +70,9 @@ pub use utils::*;
 /// ```
 ///
 /// In the above example you may notice that `Foo`'s `bar` field doesn't need
-/// an alias because `Bar` implements `BorshSchema` itself, however, the parser
+/// an alias because `Bar` implements `BorshSchemaTS` itself, however, the parser
 /// doesn't know that `SomeAlias` is actually a byte array without the `alias`
 /// attribute. If the `alias` attribute is omitted, the generated TypeScript
 /// code will contain `SomeAlias` instead of `Uint8Array`.
-pub trait BorshSchema {}
+pub trait BorshSchemaTS {}
+static ATTRIBUTE_LABEL : &str = "BorshSchemaTS";
