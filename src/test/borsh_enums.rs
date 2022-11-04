@@ -7,7 +7,6 @@ use solana_program::pubkey::Pubkey;
 
 use std::fs;
 use std::io::Write;
-use borsh::BorshSchema;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -21,14 +20,14 @@ struct TestData {
     enum_variant_g: Vec<u8>,
 }
 
-#[derive(BorshSchema, BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct RandomStruct {
     field_a: String,
     field_b: Option<[u8; 2]>,
 }
 
 #[allow(clippy::enum_variant_names)]
-#[derive(BorshSchema, BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub enum TestEnum {
     VariantA,
     VariantB,
