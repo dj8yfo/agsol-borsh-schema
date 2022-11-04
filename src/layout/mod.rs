@@ -43,7 +43,7 @@ impl Layout {
             .fields
             .iter()
             .filter(|field| !field.should_skip())
-            .map(|field| String::from("\n    ") + &field.to_class_field() + ";")
+            .map(|field| String::from("\n  ") + &field.to_class_field() + " | undefined;")
             .collect::<String>();
         format!(
             r#"export class {} extends {:?} {{{}

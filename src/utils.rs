@@ -92,6 +92,20 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
     Ok(layouts)
 }
 
+static LIB_SCHEMA_PKEY: &str = r#"
+  [
+    PublicKeyBE,
+    {
+      kind: 'struct',
+      fields: [['value', [32]]],
+    },
+  ]
+"#;
+
+static LIB_PREABMLE: &str = r#"import Enum from './helpers_default/enum';
+import Struct from './helpers_default/struct';
+import PublicKeyBE from './helpers_default/be_pubkey';
+"#;
 /// Writes the generated layouts into a file in the provided output directory.
 pub fn generate_output(
     layouts: &[Layout],
@@ -107,23 +121,15 @@ pub fn generate_output(
         .map(|layout| layout.to_ts_class())
         .collect::<String>();
 
+
     let schema = format!(
         r#"export const SCHEMA = new Map<any, any>([{}
+{}
 ]);"#,
-        schema_string
+        schema_string, LIB_SCHEMA_PKEY
     );
 
-    let imports = String::from(
-        r#"import { PublicKey } from "@solana/web3.js";
-import BN from "bn.js";
-import Enum from "./extensions/enum";
-import Struct from "./extensions/struct";
-import { borshPublicKey } from "./extensions/publicKey";
-
-borshPublicKey();
-
-"#,
-    );
+    let imports = String::from(LIB_PREABMLE);
 
     fs::create_dir_all(&output_directory)?;
     let mut file = fs::File::create(output_directory.as_ref().join("schema.ts"))?;
