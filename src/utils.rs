@@ -102,9 +102,7 @@ static LIB_SCHEMA_PKEY: &str = r#"
   ]
 "#;
 
-static LIB_PREABMLE: &str = r#"import Enum from './helpers_default/enum';
-import Struct from './helpers_default/struct';
-import PublicKeyBE from './helpers_default/be_pubkey';
+static LIB_PREABMLE: &str = r#"import {Struct, Enum, PublicKeyBE} from 'ts-borsh-schema';
 "#;
 /// Writes the generated layouts into a file in the provided output directory.
 pub fn generate_output(
