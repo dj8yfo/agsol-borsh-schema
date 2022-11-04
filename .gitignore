@@ -1,2 +1,5 @@
 .vim-bookmarks
 /target
+/test-data
+/test-output
+/agsol-borsh-schema-derive/target/

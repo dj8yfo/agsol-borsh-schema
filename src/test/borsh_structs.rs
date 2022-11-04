@@ -1,11 +1,12 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::*;
+use crate::{BorshSchemaTS, generate_layout_from_file};
 
 use borsh::{BorshDeserialize, BorshSerialize};
 use serde::Serialize;
 
 use std::fs;
 use std::io::Write;
+
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -20,7 +21,7 @@ pub type Amount = u64;
 type StatePool = Option<Vec<OtherState>>;
 
 #[allow(dead_code)]
-#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TestStruct {
     field_a: u64,
     field_b: u8,
@@ -32,14 +33,14 @@ pub struct TestStruct {
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Copy, Debug)]
-#[cfg_attr(test, derive(BorshSchema))]
+#[cfg_attr(test, derive(BorshSchemaTS))]
 pub struct OtherState {
     #[alias(u64)]
     amount: Amount,
     timestamp: UnixTimestamp,
 }
 
-#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TupleStruct(u8, pub i32, pub OtherState);
 
 #[test]
