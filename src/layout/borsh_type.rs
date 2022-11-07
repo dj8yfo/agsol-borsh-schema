@@ -20,20 +20,85 @@ pub enum BorshType {
     Custom(String),
     Skip,
 }
+use anyhow::anyhow;
 use quote::ToTokens;
 use syn::Type;
-use anyhow::anyhow;
 
 fn remove_whitespace(s: &mut String) {
     s.retain(|c| !c.is_whitespace());
 }
 
-fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
+fn proc_option(x: String) -> Result<BorshType, anyhow::Error> {
+    let inner = x
+        .strip_prefix("Option<")
+        .unwrap()
+        .strip_suffix('>')
+        .ok_or_else(|| anyhow::anyhow!("invalid Option"))?;
+    let inner_type = BorshType::from_str(inner)?;
+    Ok(BorshType::Option(Box::new(inner_type)))
+}
 
-    let syntax : Type  = syn::parse_str(input)?;
+fn proc_vec(x: String) -> Result<BorshType, anyhow::Error> {
+    let inner = x
+        .strip_prefix("Vec<")
+        .unwrap()
+        .strip_suffix('>')
+        .ok_or_else(|| anyhow::anyhow!("invalid Vec"))?;
+    let inner_type = BorshType::from_str(inner)?;
+    Ok(BorshType::Vec(Box::new(inner_type)))
+}
+
+fn proc_vec_deque(x: String) -> Result<BorshType, anyhow::Error> {
+    let inner = x
+        .strip_prefix("VecDeque<")
+        .unwrap()
+        .strip_suffix('>')
+        .ok_or_else(|| anyhow::anyhow!("invalid VecDeque"))?;
+    let inner_type = BorshType::from_str(inner)?;
+    Ok(BorshType::Vec(Box::new(inner_type)))
+}
+
+fn proc_arr_old(x: String) -> Result<BorshType, anyhow::Error> {
+    let inner = x
+        .strip_prefix('[')
+        .unwrap()
+        .strip_suffix(']')
+        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ']'"))?;
+    let (array_type_str, array_len_str) = inner
+        .rsplit_once(';')
+        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ';'"))?;
+    let array_type = BorshType::from_str(array_type_str)?;
+    let array_len = array_len_str.parse::<usize>()?;
+    if let BorshType::U8 = array_type {
+        Ok(BorshType::FixedBytes(array_len))
+    } else {
+        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
+    }
+}
+
+fn proc_arr(x: String) -> Result<BorshType, anyhow::Error> {
+    let inner = x
+        .strip_prefix("Array<")
+        .unwrap()
+        .strip_suffix('>')
+        .ok_or_else(|| anyhow::anyhow!("invalid array, missing '>'"))?;
+    let (array_type_str, array_len_str) = inner
+        .rsplit_once(',')
+        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ','"))?;
+    let array_type = BorshType::from_str(array_type_str)?;
+    let array_len = array_len_str.parse::<usize>()?;
+    if let BorshType::U8 = array_type {
+        Ok(BorshType::FixedBytes(array_len))
+    } else {
+        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
+    }
+}
+
+fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
+    let syntax: Type = syn::parse_str(input)?;
     match syntax {
         Type::Path(type_path) => {
-            let result = match  &type_path.path.segments[0].arguments {
+            let result = match &type_path.path.segments[0].arguments {
                 syn::PathArguments::AngleBracketed(args) => {
                     let l_arg = &args.args[0];
                     let r_arg = &args.args[1];
@@ -44,19 +109,34 @@ fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
                     remove_whitespace(&mut r_str);
 
                     Ok((l_str, r_str))
-                },
+                }
                 _ => Err(anyhow!("wrong variant")),
-
             };
-            
+
+            // TODO: remove debug output
             println!("{:?}", result);
             result
-
-        }, 
+        }
         _ => Err(anyhow!("wrong variant")),
-
     }
+}
 
+fn proc_hash_map(input: String) -> Result<BorshType, anyhow::Error> {
+    let (key_str, value_str) = split_hash_map(&input)?;
+    let key = BorshType::from_str(&key_str)?;
+    let value = BorshType::from_str(&value_str)?;
+    Ok(BorshType::Map(Box::new(key), Box::new(value)))
+}
+fn if_starts_with_patterns(input: String) -> Result<BorshType, anyhow::Error> {
+    match input {
+        x if x.strip_prefix("Option<").is_some() => proc_option(x),
+        x if x.strip_prefix("Vec<").is_some() => proc_vec(x),
+        x if x.strip_prefix("VecDeque<").is_some() => proc_vec_deque(x),
+        x if x.strip_prefix('[').is_some() => proc_arr_old(x),
+        x if x.strip_prefix("Array<").is_some() => proc_arr(x),
+        x if x.strip_prefix("HashMap<").is_some() => proc_hash_map(x),
+        _ => Ok(BorshType::Custom(input)),
+    }
 }
 
 impl FromStr for BorshType {
@@ -73,62 +153,7 @@ impl FromStr for BorshType {
             "bool" => Ok(BorshType::Bool),
             "String" | "string" => Ok(BorshType::String),
             "Pubkey" => Ok(BorshType::Pubkey),
-            _ => {
-                if let Some(inner) = input.strip_prefix("Option<") {
-                    let inner = inner
-                        .strip_suffix('>')
-                        .ok_or_else(|| anyhow::anyhow!("invalid Option"))?;
-                    let inner_type = BorshType::from_str(inner)?;
-                    Ok(BorshType::Option(Box::new(inner_type)))
-                } else if let Some(inner) = input.strip_prefix("Vec<") {
-                    let inner = inner
-                        .strip_suffix('>')
-                        .ok_or_else(|| anyhow::anyhow!("invalid Vec"))?;
-                    let inner_type = BorshType::from_str(inner)?;
-                    Ok(BorshType::Vec(Box::new(inner_type)))
-                } else if let Some(inner) = input.strip_prefix("VecDeque<") {
-                    let inner = inner
-                        .strip_suffix('>')
-                        .ok_or_else(|| anyhow::anyhow!("invalid VecDeque"))?;
-                    let inner_type = BorshType::from_str(inner)?;
-                    Ok(BorshType::Vec(Box::new(inner_type)))
-                } else if let Some(inner) = input.strip_prefix('[') {
-                    let inner = inner
-                        .strip_suffix(']')
-                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ']'"))?;
-                    let (array_type_str, array_len_str) = inner
-                        .rsplit_once(';')
-                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ';'"))?;
-                    let array_type = BorshType::from_str(array_type_str)?;
-                    let array_len = array_len_str.parse::<usize>()?;
-                    if let BorshType::U8 = array_type {
-                        Ok(BorshType::FixedBytes(array_len))
-                    } else {
-                        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
-                    }
-                } else if let Some(inner) = input.strip_prefix("Array<") {
-                    let inner = inner
-                        .strip_suffix('>')
-                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing '>'"))?;
-                    let (array_type_str, array_len_str) = inner
-                        .rsplit_once(',')
-                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ','"))?;
-                    let array_type = BorshType::from_str(array_type_str)?;
-                    let array_len = array_len_str.parse::<usize>()?;
-                    if let BorshType::U8 = array_type {
-                        Ok(BorshType::FixedBytes(array_len))
-                    } else {
-                        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
-                    }
-                } else if input.strip_prefix("HashMap<").is_some() {
-                    let (key_str, value_str) = split_hash_map(&input)?;
-                    let key = BorshType::from_str(&key_str)?;
-                    let value = BorshType::from_str(&value_str)?;
-                    Ok(BorshType::Map(Box::new(key), Box::new(value)))
-                } else {
-                    Ok(BorshType::Custom(input.to_owned()))
-                }
-            }
+            _ => if_starts_with_patterns(input),
         }
     }
 }
@@ -146,7 +171,9 @@ impl BorshType {
             Self::String => "'string'".to_owned(),
             Self::Pubkey => "'publicKeyHack'".to_owned(),
             Self::Vec(inner) => format!("[{}]", inner.to_borsh_schema()),
-            Self::FixedArray(inner, len) => format!("[{}, {}]", inner.to_borsh_schema(), len),
+            Self::FixedArray(inner, len) => {
+                format!("[{}, {}]", inner.to_borsh_schema(), len)
+            }
             Self::FixedBytes(len) => format!("[{}]", len),
             Self::Option(inner) => {
                 format!("{{ kind: 'option', type: {} }}", inner.to_borsh_schema())
