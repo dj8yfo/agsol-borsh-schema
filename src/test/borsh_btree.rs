@@ -1,19 +1,19 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::{BorshSchemaTS, generate_layout_from_file};
-use borsh::{BorshDeserialize, BorshSerialize};
+use crate::generate_layout_from_file;
+use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program::pubkey::Pubkey;
 
-use std::collections::BTreeMap;
+use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
 
 
-#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize)]
+#[derive(BorshSchema, BorshSerialize, BorshDeserialize)]
 pub struct BTreeWrapper {
-    map0: BTreeMap<[u8; 32], Pubkey>,
-    map1: BTreeMap<String, Option<u32>>,
-    map2: BTreeMap<u16, String>,
+    map0: HashMap<[u8; 32], Pubkey>,
+    map1: HashMap<String, Option<u32>>,
+    map2: HashMap<u16, String>,
 }
 
 #[test]
@@ -22,7 +22,7 @@ fn generate_layout_from_this_file() {
     assert_eq!(layouts.len(), 1);
     assert_eq!(layouts[0].name, "BTreeWrapper");
 
-    let mut btree0 = BTreeMap::<[u8; 32], Pubkey>::new();
+    let mut btree0 = HashMap::<[u8; 32], Pubkey>::new();
     let mut id = [0; 32];
     let mut pubkey = [0; 32];
     id[0] = 100;
@@ -41,13 +41,13 @@ fn generate_layout_from_this_file() {
     pubkey[4] = 44;
     btree0.insert(id, Pubkey::new(&pubkey));
 
-    let mut btree1 = BTreeMap::<String, Option<u32>>::new();
+    let mut btree1 = HashMap::<String, Option<u32>>::new();
     btree1.insert("hello".to_string(), Some(23));
     btree1.insert("bello".to_string(), Some(33));
     btree1.insert("yello".to_string(), None);
     btree1.insert("zello".to_string(), Some(44));
 
-    let mut btree2 = BTreeMap::<u16, String>::new();
+    let mut btree2 = HashMap::<u16, String>::new();
     btree2.insert(168, "value".to_string());
     btree2.insert(169, "values".to_string());
 

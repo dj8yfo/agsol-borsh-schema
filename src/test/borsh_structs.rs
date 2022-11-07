@@ -1,7 +1,7 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::{BorshSchemaTS, generate_layout_from_file};
+use crate::generate_layout_from_file;
 
-use borsh::{BorshDeserialize, BorshSerialize};
+use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
 use serde::Serialize;
 
 use std::fs;
@@ -21,26 +21,25 @@ pub type Amount = u64;
 type StatePool = Option<Vec<OtherState>>;
 
 #[allow(dead_code)]
-#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TestStruct {
     field_a: u64,
     field_b: u8,
-    #[alias(Option<Vec<OtherState>>)]
+    // #[alias(Option<Vec<OtherState>>)]
     field_c: StatePool,
-    #[schema_skip]
     #[borsh_skip]
     skipped_field: Option<u32>,
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Copy, Debug)]
-#[cfg_attr(test, derive(BorshSchemaTS))]
+#[cfg_attr(test, derive(BorshSchema))]
 pub struct OtherState {
-    #[alias(u64)]
+    // #[alias(u64)]
     amount: Amount,
     timestamp: UnixTimestamp,
 }
 
-#[derive(BorshSchemaTS, BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TupleStruct(u8, pub i32, pub OtherState);
 
 #[test]

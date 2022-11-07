@@ -38,6 +38,7 @@ pub fn generate_layouts(directory: impl AsRef<Path>) -> Result<Vec<Layout>, anyh
         .collect::<Vec<Layout>>())
 }
 
+static ATTRIBUTE_LABEL : &str = "BorshSchemaTS";
 /// Generates the TypeScript and borsh layouts of rust data structures found in `.rs`
 /// files.
 pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layout>, anyhow::Error> {
@@ -52,7 +53,7 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
             syn::Item::Struct(ref item_struct) => {
                 for attr in &item_struct.attrs {
                     let attribute_string = attr.tokens.to_string();
-                    if attribute_string.contains(crate::ATTRIBUTE_LABEL) {
+                    if attribute_string.contains(ATTRIBUTE_LABEL) {
                         layouts.push(Layout::from_tokens(
                             &item_struct.ident.to_string(),
                             &mut item_struct.fields.iter(),
@@ -63,7 +64,7 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
             syn::Item::Enum(ref item_enum) => {
                 for attr in &item_enum.attrs {
                     let attribute_string = attr.tokens.to_string();
-                    if attribute_string.contains(crate::ATTRIBUTE_LABEL) {
+                    if attribute_string.contains(ATTRIBUTE_LABEL) {
                         let mut enum_layout = Layout {
                             name: item_enum.ident.to_string(),
                             kind: Kind::Enum,
