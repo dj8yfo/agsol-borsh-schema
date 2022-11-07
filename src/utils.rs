@@ -92,13 +92,13 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
     Ok(layouts)
 }
 
-// TODO: move borshPublicKey to 'ts-borsh-schema'
+// TODO: move borshPublicKeyHack to 'ts-borsh-schema'
 static LIB_PREABMLE: &str = r#"import { Struct, Enum } from 'ts-borsh-schema';
 import { PublicKey } from "@solana/web3.js";
 import BN from "bn.js";
-import { borshPublicKey } from "./extensions/publicKey";
+import { borshPublicKeyHack } from "./extensions/publicKey";
 
-borshPublicKey();
+borshPublicKeyHack();
 
 "#;
 /// Writes the generated layouts into a file in the provided output directory.

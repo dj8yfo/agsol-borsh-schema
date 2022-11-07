@@ -97,9 +97,7 @@ impl BorshType {
             Self::U64 => "'u64'".to_owned(),
             Self::U128 => "'u128'".to_owned(),
             Self::String => "'string'".to_owned(),
-            // TODO: uncomment
-            Self::Pubkey => "'publicKey'".to_owned(),
-            // Self::Pubkey => "PublicKeyBE".to_owned(),
+            Self::Pubkey => "'publicKeyHack'".to_owned(),
             Self::Vec(inner) => format!("[{}]", inner.to_borsh_schema()),
             Self::FixedArray(inner, len) => format!("[{}, {}]", inner.to_borsh_schema(), len),
             Self::FixedBytes(len) => format!("[{}]", len),
@@ -127,8 +125,6 @@ impl BorshType {
             Self::Bool => "boolean".to_owned(),
             Self::String => "string".to_owned(),
             Self::Pubkey => "PublicKey".to_owned(),
-            // TODO: uncomment
-            // Self::Pubkey => "PublicKeyBE".to_owned(),
             Self::Vec(inner) => format!("{}[]", inner.to_class_type()),
             Self::FixedArray(inner, _len) => format!("{}[]", inner.to_class_type()),
             Self::FixedBytes(len) => format!("[{}]", len),
@@ -222,7 +218,7 @@ mod test {
         assert_eq!(BorshType::U64.to_borsh_schema(), "'u64'");
         assert_eq!(BorshType::U128.to_borsh_schema(), "'u128'");
         assert_eq!(BorshType::String.to_borsh_schema(), "'string'");
-        assert_eq!(BorshType::Pubkey.to_borsh_schema(), "'publicKey'");
+        assert_eq!(BorshType::Pubkey.to_borsh_schema(), "'publicKeyHack'");
     }
 
     #[test]
@@ -250,7 +246,7 @@ mod test {
             BorshType::from_str("BTreeMap<[u8; 32], Pubkey>")
                 .unwrap()
                 .to_borsh_schema(),
-            "{ kind: 'map', key: [32], value: 'publicKey' }"
+            "{ kind: 'map', key: [32], value: 'publicKeyHack' }"
         );
     }
 
