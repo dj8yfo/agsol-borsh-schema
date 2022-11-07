@@ -3,10 +3,22 @@ use crate::generate_layout_from_file;
 
 use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
 use serde::Serialize;
+use solana_program::pubkey::Pubkey;
 
+use std::collections::HashMap;
 use std::fs;
 use std::io::Write;
+use crate::layout::Layout;
 
+
+type UnixTimestamp = i64;
+
+#[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Copy, Debug)]
+pub struct OtherState {
+    // #[alias(u64)]
+    amount: Amount,
+    timestamp: UnixTimestamp,
+}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,7 +28,6 @@ struct TestData {
     tuple_struct: Vec<u8>,
 }
 
-type UnixTimestamp = i64;
 pub type Amount = u64;
 type StatePool = Option<Vec<OtherState>>;
 
@@ -31,19 +42,42 @@ pub struct TestStruct {
     skipped_field: Option<u32>,
 }
 
-#[derive(BorshSerialize, BorshDeserialize, Clone, Copy, Debug)]
-#[cfg_attr(test, derive(BorshSchema))]
-pub struct OtherState {
-    // #[alias(u64)]
-    amount: Amount,
-    timestamp: UnixTimestamp,
-}
 
 #[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TupleStruct(u8, pub i32, pub OtherState);
 
+#[derive(BorshSchema, BorshSerialize, BorshDeserialize)]
+pub struct BTreeWrapper {
+    map0: HashMap<[u8; 32], Pubkey>,
+    map1: HashMap<String, Option<u32>>,
+    map2: HashMap<u16, String>,
+}
+
 #[test]
 fn generate_layout_from_this_file() {
+    let mut layouts = vec![];
+    let container = <OtherState as BorshSchema>::schema_container();
+    let oth_sta_layout = Layout::from_borsh_container(container).unwrap();
+    layouts.push(oth_sta_layout);
+
+    assert_eq!(layouts[0].name, "OtherState");
+
+    let container = <TupleStruct as BorshSchema>::schema_container();
+    let tup_str_layout = Layout::from_borsh_container(container).unwrap();
+
+    layouts.push(tup_str_layout);
+
+    assert_eq!(layouts[1].name, "TupleStruct");
+
+    let container = <BTreeWrapper as BorshSchema>::schema_container();
+    let tup_str_layout = Layout::from_borsh_container(container).unwrap();
+
+    
+}
+
+#[ignore]
+#[test]
+fn generate_layout_from_this_file_old() {
     let layouts = generate_layout_from_file("src/test/borsh_structs.rs").unwrap();
     assert_eq!(layouts.len(), 3);
     assert_eq!(layouts[0].name, "TestStruct");

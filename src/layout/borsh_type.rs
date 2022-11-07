@@ -20,6 +20,44 @@ pub enum BorshType {
     Custom(String),
     Skip,
 }
+use quote::ToTokens;
+use syn::Type;
+use anyhow::anyhow;
+
+fn remove_whitespace(s: &mut String) {
+    s.retain(|c| !c.is_whitespace());
+}
+
+fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
+
+    let syntax : Type  = syn::parse_str(input)?;
+    match syntax {
+        Type::Path(type_path) => {
+            let result = match  &type_path.path.segments[0].arguments {
+                syn::PathArguments::AngleBracketed(args) => {
+                    let l_arg = &args.args[0];
+                    let r_arg = &args.args[1];
+
+                    let mut l_str = l_arg.to_token_stream().to_string();
+                    let mut r_str = r_arg.to_token_stream().to_string();
+                    remove_whitespace(&mut l_str);
+                    remove_whitespace(&mut r_str);
+
+                    Ok((l_str, r_str))
+                },
+                _ => Err(anyhow!("wrong variant")),
+
+            };
+            
+            println!("{:?}", result);
+            result
+
+        }, 
+        _ => Err(anyhow!("wrong variant")),
+
+    }
+
+}
 
 impl FromStr for BorshType {
     type Err = anyhow::Error;
@@ -33,7 +71,7 @@ impl FromStr for BorshType {
             "u64" | "i64" | "UnixTimestamp" => Ok(BorshType::U64),
             "u128" | "i128" => Ok(BorshType::U128),
             "bool" => Ok(BorshType::Bool),
-            "String" => Ok(BorshType::String),
+            "String" | "string" => Ok(BorshType::String),
             "Pubkey" => Ok(BorshType::Pubkey),
             _ => {
                 if let Some(inner) = input.strip_prefix("Option<") {
@@ -68,15 +106,24 @@ impl FromStr for BorshType {
                     } else {
                         Ok(BorshType::FixedArray(Box::new(array_type), array_len))
                     }
-                } else if let Some(inner) = input.strip_prefix("BTreeMap<") {
+                } else if let Some(inner) = input.strip_prefix("Array<") {
                     let inner = inner
                         .strip_suffix('>')
-                        .ok_or_else(|| anyhow::anyhow!("invalid BTreeMap"))?;
-                    let (key_str, value_str) = inner
-                        .split_once(',')
-                        .ok_or_else(|| anyhow::anyhow!("invalid BTreeMap, missing ','"))?;
-                    let key = BorshType::from_str(key_str)?;
-                    let value = BorshType::from_str(value_str)?;
+                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing '>'"))?;
+                    let (array_type_str, array_len_str) = inner
+                        .rsplit_once(',')
+                        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ','"))?;
+                    let array_type = BorshType::from_str(array_type_str)?;
+                    let array_len = array_len_str.parse::<usize>()?;
+                    if let BorshType::U8 = array_type {
+                        Ok(BorshType::FixedBytes(array_len))
+                    } else {
+                        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
+                    }
+                } else if input.strip_prefix("HashMap<").is_some() {
+                    let (key_str, value_str) = split_hash_map(&input)?;
+                    let key = BorshType::from_str(&key_str)?;
+                    let value = BorshType::from_str(&value_str)?;
                     Ok(BorshType::Map(Box::new(key), Box::new(value)))
                 } else {
                     Ok(BorshType::Custom(input.to_owned()))
@@ -243,10 +290,22 @@ mod test {
         );
 
         assert_eq!(
-            BorshType::from_str("BTreeMap<[u8; 32], Pubkey>")
+            BorshType::from_str("HashMap<[u8; 32], Pubkey>")
                 .unwrap()
                 .to_borsh_schema(),
             "{ kind: 'map', key: [32], value: 'publicKeyHack' }"
+        );
+        assert_eq!(
+            BorshType::from_str("HashMap<Array<u8, 32>, Pubkey>")
+                .unwrap()
+                .to_borsh_schema(),
+            "{ kind: 'map', key: [32], value: 'publicKeyHack' }"
+        );
+        assert_eq!(
+            BorshType::from_str("HashMap<string, Option<u32>>")
+                .unwrap()
+                .to_borsh_schema(),
+            "{ kind: 'map', key: 'string', value: { kind: 'option', type: 'u32' } }"
         );
     }
 
@@ -258,7 +317,7 @@ mod test {
         assert_eq!(ty.to_class_type(), "PublicKey[] | null");
         let ty = BorshType::from_str("[bool; 5]").unwrap();
         assert_eq!(ty.to_class_type(), "boolean[]");
-        let ty = BorshType::from_str("BTreeMap<[u8; 32], PublicKey>").unwrap();
+        let ty = BorshType::from_str("HashMap<[u8; 32], PublicKey>").unwrap();
         assert_eq!(dbg!(ty.to_class_type()), "Map<[32], PublicKey>");
     }
 }
