@@ -1,0 +1,19 @@
+{
+  "name": "ts-borsh-schema",
+  "version": "1.0.0",
+  "description": "Borsh serialization tests",
+  "scripts": {
+    "test": "ts-node ./test.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.30.2",
+    "ts-borsh-schema": "git+https://github.com/dj8yfo/ts-borsh-schema.git",
+    "bn.js": "^5.0.0",
+    "borsh": "^0.7.0"
+  }
+}

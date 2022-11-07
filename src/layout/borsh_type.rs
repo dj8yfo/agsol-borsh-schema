@@ -97,7 +97,9 @@ impl BorshType {
             Self::U64 => "'u64'".to_owned(),
             Self::U128 => "'u128'".to_owned(),
             Self::String => "'string'".to_owned(),
-            Self::Pubkey => "PublicKeyBE".to_owned(),
+            // TODO: uncomment
+            Self::Pubkey => "'publicKey'".to_owned(),
+            // Self::Pubkey => "PublicKeyBE".to_owned(),
             Self::Vec(inner) => format!("[{}]", inner.to_borsh_schema()),
             Self::FixedArray(inner, len) => format!("[{}, {}]", inner.to_borsh_schema(), len),
             Self::FixedBytes(len) => format!("[{}]", len),
@@ -124,7 +126,9 @@ impl BorshType {
             Self::U128 => "BN".to_owned(),
             Self::Bool => "boolean".to_owned(),
             Self::String => "string".to_owned(),
-            Self::Pubkey => "PublicKeyBE".to_owned(),
+            Self::Pubkey => "PublicKey".to_owned(),
+            // TODO: uncomment
+            // Self::Pubkey => "PublicKeyBE".to_owned(),
             Self::Vec(inner) => format!("{}[]", inner.to_class_type()),
             Self::FixedArray(inner, _len) => format!("{}[]", inner.to_class_type()),
             Self::FixedBytes(len) => format!("[{}]", len),

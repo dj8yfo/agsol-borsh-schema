@@ -1,5 +1,6 @@
 .vim-bookmarks
 /target
 /test-data
-/test-output
+test-rs-output-ts-input/schema.ts
+test-rs-output-ts-input/node_modules
 /agsol-borsh-schema-derive/target/

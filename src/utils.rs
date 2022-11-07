@@ -92,17 +92,14 @@ pub fn generate_layout_from_file(filepath: impl AsRef<Path>) -> Result<Vec<Layou
     Ok(layouts)
 }
 
-static LIB_SCHEMA_PKEY: &str = r#"
-  [
-    PublicKeyBE,
-    {
-      kind: 'struct',
-      fields: [['value', [32]]],
-    },
-  ]
-"#;
+// TODO: move borshPublicKey to 'ts-borsh-schema'
+static LIB_PREABMLE: &str = r#"import { Struct, Enum } from 'ts-borsh-schema';
+import { PublicKey } from "@solana/web3.js";
+import BN from "bn.js";
+import { borshPublicKey } from "./extensions/publicKey";
 
-static LIB_PREABMLE: &str = r#"import {Struct, Enum, PublicKeyBE} from 'ts-borsh-schema';
+borshPublicKey();
+
 "#;
 /// Writes the generated layouts into a file in the provided output directory.
 pub fn generate_output(
@@ -122,9 +119,8 @@ pub fn generate_output(
 
     let schema = format!(
         r#"export const SCHEMA = new Map<any, any>([{}
-{}
 ]);"#,
-        schema_string, LIB_SCHEMA_PKEY
+        schema_string
     );
 
     let imports = String::from(LIB_PREABMLE);
