@@ -38,13 +38,21 @@ fn match_enum_variants(
 ) -> Result<EnumResult, anyhow::Error> {
     #[cfg(test)]
     dbg!(variants);
-    let (fields, _layouts): (Vec<_>, Vec<_>) = variants.iter().map(|(_variant_name, declaration)| {
-        (LayoutField::from_enum_variant(declaration), declaration)
-
-    }).unzip();
+    let (fields, layouts): (Vec<_>, Vec<_>) = variants
+        .iter()
+        .map(|(_variant_name, declaration)| {
+            let layout_field = LayoutField::from_enum_variant(declaration);
+            let layout = Layout::from_borsh_definition(declaration, container)
+                // we assume an enum variant definition being just a single Kind::Struct
+                // layout
+                .map(|mut vec| vec.remove(0));
+            (layout_field, layout)
+        })
+        .unzip();
     let fields: Result<Vec<LayoutField>, anyhow::Error> = fields.into_iter().collect();
+    let layouts: Result<Vec<Layout>, anyhow::Error> = layouts.into_iter().collect();
 
-    Ok((fields?, vec![]))
+    Ok((fields?, layouts?))
 }
 
 impl Layout {

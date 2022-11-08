@@ -1,5 +1,4 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::generate_layout_from_file;
 use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program::pubkey::Pubkey;
@@ -18,9 +17,6 @@ pub struct BTreeWrapper {
 
 #[test]
 fn generate_layout_from_this_file() {
-    let layouts = generate_layout_from_file("src/test/borsh_btree.rs").unwrap();
-    assert_eq!(layouts.len(), 1);
-    assert_eq!(layouts[0].name, "BTreeWrapper");
 
     let mut btree0 = HashMap::<[u8; 32], Pubkey>::new();
     let mut id = [0; 32];

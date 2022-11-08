@@ -1,5 +1,4 @@
 use super::TEST_DATA_DIRECTORY;
-use crate::generate_layout_from_file;
 use crate::layout::Layout;
 
 use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
@@ -27,7 +26,6 @@ pub struct RandomStruct {
     field_b: Option<[u8; 2]>,
 }
 
-#[allow(clippy::enum_variant_names)]
 #[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub enum TestEnum {
     VariantA,
@@ -37,9 +35,13 @@ pub enum TestEnum {
     VariantE(Option<u8>),
     VariantF(RandomStruct),
     VariantG {
+        #[allow(dead_code)]
         hello: Vec<u8>,
+        #[allow(dead_code)]
         bello: [Pubkey; 3],
+        #[allow(dead_code)]
         yello: u16,
+        #[allow(dead_code)]
         zello: bool,
     },
 }
@@ -54,22 +56,14 @@ fn generate_layout_from_this_file() {
     let container = <TestEnum as BorshSchema>::schema_container();
     let test_enum_l = Layout::from_borsh_container(container).unwrap();
 
-    // assert_eq!(test_enum_l[0].name, "TestEnum");
-}
-
-#[ignore]
-#[test]
-fn generate_layout_from_this_file_old() {
-    let layouts = generate_layout_from_file("src/test/borsh_enums.rs").unwrap();
-    assert_eq!(layouts.len(), 9);
-    assert_eq!(layouts[0].name, "RandomStruct");
-    assert_eq!(layouts[1].name, "TestEnum");
-    assert_eq!(layouts[2].name, "TestEnumVariantA");
-    assert_eq!(layouts[3].name, "TestEnumVariantB");
-    assert_eq!(layouts[4].name, "TestEnumVariantC");
-    assert_eq!(layouts[5].name, "TestEnumVariantD");
-    assert_eq!(layouts[6].name, "TestEnumVariantE");
-    assert_eq!(layouts[7].name, "TestEnumVariantF");
+    assert_eq!(test_enum_l[0].name, "TestEnum");
+    assert_eq!(test_enum_l[1].name, "TestEnumVariantA");
+    assert_eq!(test_enum_l[2].name, "TestEnumVariantB");
+    assert_eq!(test_enum_l[3].name, "TestEnumVariantC");
+    assert_eq!(test_enum_l[4].name, "TestEnumVariantD");
+    assert_eq!(test_enum_l[5].name, "TestEnumVariantE");
+    assert_eq!(test_enum_l[6].name, "TestEnumVariantF");
+    assert_eq!(test_enum_l[7].name, "TestEnumVariantG");
 
     let mut pubkey_array = [0; 32];
     pubkey_array[31] = 12;
@@ -112,3 +106,5 @@ fn generate_layout_from_this_file_old() {
         fs::File::create(String::from(TEST_DATA_DIRECTORY) + "/test_enums.json").unwrap();
     write!(file, "{}", serde_json::to_string(&test_data).unwrap()).unwrap();
 }
+
+

@@ -22,19 +22,6 @@ pub struct Layout {
 }
 
 impl Layout {
-    /// Generates a layout from the underlying token stream.
-    // TODO : remove
-    pub fn from_tokens(
-        name: &str,
-        fields: &mut dyn Iterator<Item = &syn::Field>,
-    ) -> Result<Self, anyhow::Error> {
-        let fields = vec![];
-        Ok(Self {
-            name: name.to_string(),
-            kind: Kind::Struct,
-            fields,
-        })
-    }
 
     /// Converts the layout into a TypeScript class.
     pub fn to_ts_class(&self) -> String {

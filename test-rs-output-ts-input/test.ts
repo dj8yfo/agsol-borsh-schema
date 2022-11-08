@@ -6,7 +6,7 @@ import { testMap } from "./test_map"
 testStruct1();
 testStruct2();
 
-// testEnum1();
-// testEnum2();
+testEnum1();
+testEnum2();
 //
 // testMap();
