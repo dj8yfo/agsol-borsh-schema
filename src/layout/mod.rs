@@ -28,10 +28,7 @@ impl Layout {
         name: &str,
         fields: &mut dyn Iterator<Item = &syn::Field>,
     ) -> Result<Self, anyhow::Error> {
-        let fields = fields
-            .enumerate()
-            .map(|(i, x)| LayoutField::from_tokens(x, i))
-            .collect::<Result<Vec<_>, _>>()?;
+        let fields = vec![];
         Ok(Self {
             name: name.to_string(),
             kind: Kind::Struct,

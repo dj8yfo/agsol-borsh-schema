@@ -9,16 +9,23 @@ use borsh::schema::Fields;
 fn match_fields(fields: &Fields) -> Result<Vec<LayoutField>, anyhow::Error> {
     #[cfg(test)]
     dbg!(fields);
-    let vec = match fields {
+    type FuncResult = Result<Vec<LayoutField>, anyhow::Error>;
+    let result = match fields {
         Fields::NamedFields(names_types) => {
-            for (name, elem) in names_types {
-            }
-            vec![]
+            let result: FuncResult =names_types.iter().map(|(name, field)|{
+                LayoutField::from_declaration(Some(name), field, None)
+            }).collect(); 
+            result
         }
-        Fields::UnnamedFields(types) => {vec![]}
-        Fields::Empty => {vec![]}
+        Fields::UnnamedFields(types) => {
+            let result: FuncResult = types.iter().enumerate().map(|(idx, field)| {
+                LayoutField::from_declaration(None, field, Some(idx))
+            }).collect();
+            result
+        }
+        Fields::Empty => {Ok(vec![])}
     };
-    Ok(vec)
+    result
 }
 
 impl super::Layout {
