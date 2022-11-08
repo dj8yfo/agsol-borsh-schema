@@ -10,7 +10,6 @@ dependencies = [
  "borsh",
  "borsh-derive",
  "heck",
- "proc-macro2",
  "quote",
  "serde",
  "serde_json",

@@ -9,12 +9,11 @@ description = "Parser that generates TypeScript code for Borsh serialization"
 repository = "https://github.com/agoraxyz/agora-solana"
 
 [features]
-full = ["anyhow", "heck", "proc-macro2", "quote", "syn"]
+full = ["anyhow", "heck", "quote", "syn"]
 
 [dependencies]
 anyhow = { version = "1.0", optional = true }
 heck = { version = "0.3.3", optional = true }
-proc-macro2 = { version = "1.0", optional = true }
 quote = { version = "1.0", optional = true }
 syn = { version = "1.0", features = ["full", "parsing", "extra-traits"], optional = true }
 borsh = "0.9.1"

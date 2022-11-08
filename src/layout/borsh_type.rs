@@ -322,6 +322,14 @@ mod test {
                 .to_borsh_schema(),
             "{ kind: 'map', key: [32], value: 'publicKeyHack' }"
         );
+
+        assert_eq!(
+            BorshType::from_str("Array<Array<Array<u64, 9>, 10>, 32>")
+                .unwrap()
+                .to_borsh_schema(),
+            "[[['u64', 9], 10], 32]"
+        );
+
         assert_eq!(
             BorshType::from_str("HashMap<string, Option<u32>>")
                 .unwrap()

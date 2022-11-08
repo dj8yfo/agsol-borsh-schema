@@ -1,7 +1,5 @@
 use super::BorshType;
 use heck::MixedCase;
-use proc_macro2::TokenStream;
-use quote::ToTokens;
 
 use std::str::FromStr;
 use anyhow::anyhow;
@@ -14,15 +12,21 @@ pub struct LayoutField {
 }
 
 impl LayoutField {
-
-    pub fn from_declaration(name: Option<&String>, field: &str, idx: Option<usize>) -> Result<Self, anyhow::Error> {
+    pub fn from_declaration(
+        name: Option<&String>,
+        field: &str,
+        idx: Option<usize>,
+    ) -> Result<Self, anyhow::Error> {
         let name = if let Some(name) = name {
             name.to_mixed_case()
         } else {
-            format!("unnamed_{}", idx.map_or(Err(anyhow!("no index provided")), Ok)?)
+            format!(
+                "unnamed_{}",
+                idx.map_or(Err(anyhow!("no index provided")), Ok)?
+            )
         };
         let ty = BorshType::from_str(field)?;
-        Ok( Self { name, ty })
+        Ok(Self { name, ty })
     }
 
     pub fn from_enum_variant(name_str: &str) -> Result<Self, anyhow::Error> {
