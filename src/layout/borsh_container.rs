@@ -1,15 +1,14 @@
 
 use super::Kind;
-use super::Layout;
+// use super::Layout;
 use super::LayoutField;
 use borsh::schema::BorshSchemaContainer;
 use borsh::schema::Fields;
-use quote::ToTokens;
-use syn::Type;
 
 
 fn match_fields(fields: &Fields) -> Result<Vec<LayoutField>, anyhow::Error> {
-    println!("{:#?}", fields);
+    #[cfg(test)]
+    dbg!(fields);
     let vec = match fields {
         Fields::NamedFields(names_types) => {
             for (name, elem) in names_types {
@@ -23,27 +22,34 @@ fn match_fields(fields: &Fields) -> Result<Vec<LayoutField>, anyhow::Error> {
 }
 
 impl super::Layout {
+    fn from_borsh_definition(
+        declaration: &borsh::schema::Declaration, 
+        container: &BorshSchemaContainer,
+    ) -> Result<Self, anyhow::Error> {
+        let definition = &container.definitions[declaration];
+        let mut kind: Kind = Kind::Struct;
+
+        #[cfg(test)]
+        dbg!(declaration, definition);
+        #[allow(clippy::single_match)]
+        let fields = match definition {
+            borsh::schema::Definition::Struct { fields } => {
+                kind = Kind::Struct;
+                match_fields(fields)?
+            },
+            _ => { vec![]},
+        };
+
+        Ok(Self {
+            name: declaration.clone(),
+            kind,
+            fields,
+        })
+    }
     /// Generates a layout from the underlying token stream.
     pub fn from_borsh_container(
         container: BorshSchemaContainer,
     ) -> Result<Self, anyhow::Error> {
-
-        let definition = &container.definitions[&container.declaration];
-        let mut kind: Kind = Kind::Struct;
-        println!("{:#?}", definition);
-        match definition {
-            borsh::schema::Definition::Struct { fields } => {
-                kind = Kind::Struct;
-                match_fields(fields);
-            },
-            _ => {},
-        };
-
-        let fields = Vec::new();
-        Ok(Self {
-            name: container.declaration,
-            kind,
-            fields,
-        })
+        Self::from_borsh_definition(&container.declaration, &container)
     }
 }

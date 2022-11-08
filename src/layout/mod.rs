@@ -23,6 +23,7 @@ pub struct Layout {
 
 impl Layout {
     /// Generates a layout from the underlying token stream.
+    // TODO : remove
     pub fn from_tokens(
         name: &str,
         fields: &mut dyn Iterator<Item = &syn::Field>,

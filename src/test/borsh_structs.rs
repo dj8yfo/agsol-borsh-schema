@@ -55,22 +55,20 @@ pub struct BTreeWrapper {
 
 #[test]
 fn generate_layout_from_this_file() {
-    let mut layouts = vec![];
     let container = <OtherState as BorshSchema>::schema_container();
-    let oth_sta_layout = Layout::from_borsh_container(container).unwrap();
-    layouts.push(oth_sta_layout);
+    let other_state_l = Layout::from_borsh_container(container).unwrap();
 
-    assert_eq!(layouts[0].name, "OtherState");
+    assert_eq!(other_state_l.name, "OtherState");
 
-    let container = <TupleStruct as BorshSchema>::schema_container();
-    let tup_str_layout = Layout::from_borsh_container(container).unwrap();
-
-    layouts.push(tup_str_layout);
-
-    assert_eq!(layouts[1].name, "TupleStruct");
-
-    let container = <BTreeWrapper as BorshSchema>::schema_container();
-    let tup_str_layout = Layout::from_borsh_container(container).unwrap();
+    // let container = <TupleStruct as BorshSchema>::schema_container();
+    // let tup_str_layout = Layout::from_borsh_container(container).unwrap();
+    //
+    // layouts.push(tup_str_layout);
+    //
+    // assert_eq!(layouts[1].name, "TupleStruct");
+    //
+    // let container = <BTreeWrapper as BorshSchema>::schema_container();
+    // let tup_str_layout = Layout::from_borsh_container(container).unwrap();
 
     
 }

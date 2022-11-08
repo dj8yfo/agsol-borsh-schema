@@ -15,6 +15,7 @@ pub struct LayoutField {
 impl LayoutField {
     /// Converts a [`Field`](syn::Field) type into a layout field by extracting
     /// its name and type.
+    // TODO : remove
     pub fn from_tokens(field: &syn::Field, n: usize) -> Result<Self, anyhow::Error> {
         let name = if let Some(field_name) = field.ident.as_ref() {
             field_name.to_string().to_mixed_case()

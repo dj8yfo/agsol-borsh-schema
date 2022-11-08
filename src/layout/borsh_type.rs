@@ -77,15 +77,8 @@ fn proc_arr_old(x: String) -> Result<BorshType, anyhow::Error> {
 }
 
 fn proc_arr(x: String) -> Result<BorshType, anyhow::Error> {
-    let inner = x
-        .strip_prefix("Array<")
-        .unwrap()
-        .strip_suffix('>')
-        .ok_or_else(|| anyhow::anyhow!("invalid array, missing '>'"))?;
-    let (array_type_str, array_len_str) = inner
-        .rsplit_once(',')
-        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ','"))?;
-    let array_type = BorshType::from_str(array_type_str)?;
+    let (array_type_str, array_len_str) = split_2tokens_in_angular_brackets(&x)?;
+    let array_type = BorshType::from_str(&array_type_str)?;
     let array_len = array_len_str.parse::<usize>()?;
     if let BorshType::U8 = array_type {
         Ok(BorshType::FixedBytes(array_len))
@@ -94,11 +87,11 @@ fn proc_arr(x: String) -> Result<BorshType, anyhow::Error> {
     }
 }
 
-fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
+fn split_2tokens_in_angular_brackets(input: &str) -> Result<(String, String), anyhow::Error> {
     let syntax: Type = syn::parse_str(input)?;
     match syntax {
         Type::Path(type_path) => {
-            let result = match &type_path.path.segments[0].arguments {
+            let split_angular_result = match &type_path.path.segments[0].arguments {
                 syn::PathArguments::AngleBracketed(args) => {
                     let l_arg = &args.args[0];
                     let r_arg = &args.args[1];
@@ -113,16 +106,16 @@ fn split_hash_map(input: &str) -> Result<(String, String), anyhow::Error> {
                 _ => Err(anyhow!("wrong variant")),
             };
 
-            // TODO: remove debug output
-            println!("{:?}", result);
-            result
+            #[cfg(test)]
+            dbg!(&split_angular_result);
+            split_angular_result
         }
         _ => Err(anyhow!("wrong variant")),
     }
 }
 
 fn proc_hash_map(input: String) -> Result<BorshType, anyhow::Error> {
-    let (key_str, value_str) = split_hash_map(&input)?;
+    let (key_str, value_str) = split_2tokens_in_angular_brackets(&input)?;
     let key = BorshType::from_str(&key_str)?;
     let value = BorshType::from_str(&value_str)?;
     Ok(BorshType::Map(Box::new(key), Box::new(value)))
@@ -132,6 +125,7 @@ fn if_starts_with_patterns(input: String) -> Result<BorshType, anyhow::Error> {
         x if x.strip_prefix("Option<").is_some() => proc_option(x),
         x if x.strip_prefix("Vec<").is_some() => proc_vec(x),
         x if x.strip_prefix("VecDeque<").is_some() => proc_vec_deque(x),
+        // TODO: replace with legit parsing of type
         x if x.strip_prefix('[').is_some() => proc_arr_old(x),
         x if x.strip_prefix("Array<").is_some() => proc_arr(x),
         x if x.strip_prefix("HashMap<").is_some() => proc_hash_map(x),
