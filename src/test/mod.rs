@@ -1,5 +1,5 @@
 // mod borsh_btree;
-// mod borsh_enums;
+mod borsh_enums;
 mod borsh_structs;
 mod generate_output;
 

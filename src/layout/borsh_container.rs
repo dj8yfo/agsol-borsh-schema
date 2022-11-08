@@ -1,9 +1,12 @@
 
 use super::Kind;
+use super::Layout;
 // use super::Layout;
 use super::LayoutField;
 use borsh::schema::BorshSchemaContainer;
+use borsh::schema::Declaration;
 use borsh::schema::Fields;
+use borsh::schema::VariantName;
 
 
 fn match_fields(fields: &Fields) -> Result<Vec<LayoutField>, anyhow::Error> {
@@ -27,36 +30,59 @@ fn match_fields(fields: &Fields) -> Result<Vec<LayoutField>, anyhow::Error> {
     };
     result
 }
+type EnumResult = (Vec<LayoutField>, Vec<Layout>);
 
-impl super::Layout {
+fn match_enum_variants(
+    variants: &[(VariantName, Declaration)],
+    container: &BorshSchemaContainer,
+) -> Result<EnumResult, anyhow::Error> {
+    #[cfg(test)]
+    dbg!(variants);
+    let (fields, _layouts): (Vec<_>, Vec<_>) = variants.iter().map(|(_variant_name, declaration)| {
+        (LayoutField::from_enum_variant(declaration), declaration)
+
+    }).unzip();
+    let fields: Result<Vec<LayoutField>, anyhow::Error> = fields.into_iter().collect();
+
+    Ok((fields?, vec![]))
+}
+
+impl Layout {
     fn from_borsh_definition(
         declaration: &borsh::schema::Declaration, 
         container: &BorshSchemaContainer,
-    ) -> Result<Self, anyhow::Error> {
+    ) -> Result<Vec<Self>, anyhow::Error> {
         let definition = &container.definitions[declaration];
-        let mut kind: Kind = Kind::Struct;
+        let kind: Kind;
 
         #[cfg(test)]
         dbg!(declaration, definition);
-        #[allow(clippy::single_match)]
-        let fields = match definition {
+
+        let mut result = vec![];
+        let (fields, nested_layouts): (Vec<LayoutField>, Vec<Self>) = match definition {
             borsh::schema::Definition::Struct { fields } => {
                 kind = Kind::Struct;
-                match_fields(fields)?
+                (match_fields(fields)?, vec![])
             },
-            _ => { vec![]},
+            borsh::schema::Definition::Enum { variants }  => { 
+                kind = Kind::Enum;
+                match_enum_variants(variants, container)?
+            },
+            _ => unimplemented!("unexpected variant for ts borsh schema generation"),
         };
-
-        Ok(Self {
+        result.push(Self {
             name: declaration.clone(),
             kind,
             fields,
-        })
+        });
+        result.extend(nested_layouts);
+
+        Ok(result)
     }
     /// Generates a layout from the underlying token stream.
     pub fn from_borsh_container(
         container: BorshSchemaContainer,
-    ) -> Result<Self, anyhow::Error> {
+    ) -> Result<Vec<Self>, anyhow::Error> {
         Self::from_borsh_definition(&container.declaration, &container)
     }
 }

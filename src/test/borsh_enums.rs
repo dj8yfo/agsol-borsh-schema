@@ -1,5 +1,6 @@
 use super::TEST_DATA_DIRECTORY;
 use crate::generate_layout_from_file;
+use crate::layout::Layout;
 
 use borsh::{BorshSchema, BorshDeserialize, BorshSerialize};
 use serde::Serialize;
@@ -45,6 +46,20 @@ pub enum TestEnum {
 
 #[test]
 fn generate_layout_from_this_file() {
+    let container = <RandomStruct as BorshSchema>::schema_container();
+    let random_struct_l = Layout::from_borsh_container(container).unwrap();
+
+    assert_eq!(random_struct_l[0].name, "RandomStruct");
+
+    let container = <TestEnum as BorshSchema>::schema_container();
+    let test_enum_l = Layout::from_borsh_container(container).unwrap();
+
+    // assert_eq!(test_enum_l[0].name, "TestEnum");
+}
+
+#[ignore]
+#[test]
+fn generate_layout_from_this_file_old() {
     let layouts = generate_layout_from_file("src/test/borsh_enums.rs").unwrap();
     assert_eq!(layouts.len(), 9);
     assert_eq!(layouts[0].name, "RandomStruct");

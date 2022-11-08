@@ -1,5 +1,8 @@
+use super::{
+    borsh_enums::{RandomStruct, TestEnum},
+    borsh_structs::{OtherState, TestStruct, TupleStruct},
+};
 use crate::{generate_output, layout::Layout};
-use super::borsh_structs::{OtherState, TupleStruct, TestStruct};
 use borsh::BorshSchema;
 
 #[test]
@@ -17,8 +20,17 @@ fn generate_output_from_test_directory() {
     let test_struct_layout =
         Layout::from_borsh_container(<TestStruct as BorshSchema>::schema_container())
             .unwrap();
-    layouts.push(other_state_l);
-    layouts.push(tuple_struct_layout);
-    layouts.push(test_struct_layout);
+
+    let random_struct_l =
+        Layout::from_borsh_container(<RandomStruct as BorshSchema>::schema_container())
+            .unwrap();
+    let test_enum_l =
+        Layout::from_borsh_container(<TestEnum as BorshSchema>::schema_container())
+            .unwrap();
+    layouts.extend(other_state_l);
+    layouts.extend(tuple_struct_layout);
+    layouts.extend(test_struct_layout);
+    layouts.extend(random_struct_l);
+    layouts.extend(test_enum_l);
     generate_output(&layouts, "test-rs-output-ts-input").unwrap();
 }

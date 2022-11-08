@@ -1,5 +1,5 @@
 clean:
-	rm ./test-rs-output-ts-input/schema.ts
+	rm ./test-rs-output-ts-input/schema.ts || true
 	@echo CLEANED
 
 test: clean

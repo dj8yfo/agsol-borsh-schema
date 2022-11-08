@@ -13,7 +13,7 @@ pub struct LayoutField {
 
 impl LayoutField {
     pub fn from_declaration(
-        name: Option<&String>,
+        name: Option<&str>,
         field: &str,
         idx: Option<usize>,
     ) -> Result<Self, anyhow::Error> {

@@ -49,17 +49,17 @@ fn generate_layout_from_this_file() {
     let container = <OtherState as BorshSchema>::schema_container();
     let other_state_l = Layout::from_borsh_container(container).unwrap();
 
-    assert_eq!(other_state_l.name, "OtherState");
+    assert_eq!(other_state_l[0].name, "OtherState");
 
     let container = <TupleStruct as BorshSchema>::schema_container();
     let tuple_struct_l = Layout::from_borsh_container(container).unwrap();
     
-    assert_eq!(tuple_struct_l.name, "TupleStruct");
+    assert_eq!(tuple_struct_l[0].name, "TupleStruct");
     //
     let container = <TestStruct as BorshSchema>::schema_container();
     let test_struct_l = Layout::from_borsh_container(container).unwrap();
 
-    assert_eq!(test_struct_l.name, "TestStruct");
+    assert_eq!(test_struct_l[0].name, "TestStruct");
 
     let test_struct_none = TestStruct {
         field_a: 45678910,
