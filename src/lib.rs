@@ -14,5 +14,6 @@ mod test;
 
 mod utils;
 
+pub use layout::Layout;
 pub use utils::*;
 
