@@ -3,7 +3,7 @@ name = "agsol-borsh-schema"
 version = "0.0.2"
 edition = "2021"
 license = "MIT"
-authors = ["Agora DAO <mark@gold.xyz>"]
+authors = ["Agora DAO <mark@gold.xyz>", "dj8yf0μl"]
 keywords = ["borsh", "serialization", "web3", "solana"]
 description = "Parser that generates TypeScript code for Borsh serialization"
 repository = "https://github.com/agoraxyz/agora-solana"
@@ -23,3 +23,4 @@ borsh-derive = "0.9.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 solana-program = "1.9.0"
+itertools = "0.10.5"

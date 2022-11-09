@@ -1,5 +1,5 @@
 import {
-    BTreeWrapper,
+    HashMapWrapper,
     SCHEMA
 } from "./schema";
 import { PublicKey } from "@solana/web3.js";
@@ -9,8 +9,8 @@ import assert from "assert";
 import fs from "fs";
 
 // Read serialized data from rust
-var data = fs.readFileSync("../test-data/test_btree.json");
-const btreeData = JSON.parse(data.toString());
+var data = fs.readFileSync("../test-data/test_hashmap.json");
+const hashmapData = JSON.parse(data.toString());
 
 // MAP TESTS
 let pubkey = [
@@ -77,10 +77,10 @@ map2.set(168, "value");
 map2.set(169, "values");
 
 export function testMap() {
-	const wrapper = new BTreeWrapper({ map0, map1, map2 });
+	const wrapper = new HashMapWrapper({ map0, map1, map2 });
 	const serialized = serialize(SCHEMA, wrapper);
-	assert(serialized.length === btreeData.length);
-	const wrapperDeserialized = deserializeUnchecked(SCHEMA, BTreeWrapper, Buffer.from(btreeData));
+	assert(serialized.length === hashmapData.length);
+	const wrapperDeserialized = deserializeUnchecked(SCHEMA, HashMapWrapper, Buffer.from(hashmapData));
 
 	let entries = wrapperDeserialized.map0.entries();
 	var [key, value] = entries.next().value;

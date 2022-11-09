@@ -8,5 +8,5 @@ testStruct2();
 
 testEnum1();
 testEnum2();
-//
-// testMap();
+
+testMap();
