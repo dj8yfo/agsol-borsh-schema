@@ -2,7 +2,7 @@ import {
     HashMapWrapper,
     SCHEMA
 } from "./schema";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey } from '@velas/web3';
 
 import { serialize, deserializeUnchecked } from "borsh";
 import assert from "assert";

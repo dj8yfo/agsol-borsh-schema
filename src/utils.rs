@@ -24,11 +24,9 @@ macro_rules! construct_layouts {
     }};
 }
 
-// TODO: move borshPublicKeyHack to 'ts-borsh-schema'
-static LIB_PREABMLE: &str = r#"import { Struct, Enum } from 'ts-borsh-schema';
-import { PublicKey } from "@solana/web3.js";
+static LIB_PREABMLE: &str = r#"import { Struct, Enum, borshPublicKeyHack } from 'ts-borsh-schema';
+import { PublicKey } from '@velas/web3';
 import BN from "bn.js";
-import { borshPublicKeyHack } from "./extensions/publicKey";
 
 borshPublicKeyHack();
 

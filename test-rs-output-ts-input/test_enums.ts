@@ -11,7 +11,7 @@ import {
     SCHEMA
 } from "./schema";
 import BN from "bn.js";
-import { PublicKey } from "@solana/web3.js";
+import { PublicKey } from '@velas/web3';
 
 import { serialize, deserializeUnchecked } from "borsh";
 import assert from "assert";
