@@ -8,6 +8,22 @@ use std::io::Write;
 use std::path::Path;
 
 
+#[macro_export]
+macro_rules! construct_layouts {
+    ($($item:ident),+) => {{
+
+        let mut layouts = Vec::new();
+        $( 
+            let item_layouts =
+                Layout::from_borsh_container(<$item as BorshSchema>::schema_container())
+                    .unwrap();
+
+            layouts.extend(item_layouts);
+        )+
+        layouts
+    }};
+}
+
 // TODO: move borshPublicKeyHack to 'ts-borsh-schema'
 static LIB_PREABMLE: &str = r#"import { Struct, Enum } from 'ts-borsh-schema';
 import { PublicKey } from "@solana/web3.js";
