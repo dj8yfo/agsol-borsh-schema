@@ -7,13 +7,12 @@
 
 /// Intermediate data structures used for generating
 /// schema an TypeScript class layouts.
-#[cfg(feature = "full")]
 mod layout;
-#[cfg(all(test, feature = "full"))]
+
+#[cfg(test)]
 mod test;
-#[cfg(feature = "full")]
+
 mod utils;
 
-#[cfg(feature = "full")]
 pub use utils::*;
 

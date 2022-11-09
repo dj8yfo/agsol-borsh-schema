@@ -4,5 +4,5 @@ clean:
 	@echo CLEANED
 
 test: clean
-	cargo test --features full
+	cargo test
 	cd test-rs-output-ts-input && npm run test

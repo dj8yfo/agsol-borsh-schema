@@ -8,14 +8,12 @@ keywords = ["borsh", "serialization", "web3", "solana"]
 description = "Parser that generates TypeScript code for Borsh serialization"
 repository = "https://github.com/agoraxyz/agora-solana"
 
-[features]
-full = ["anyhow", "heck", "quote", "syn"]
 
 [dependencies]
-anyhow = { version = "1.0", optional = true }
-heck = { version = "0.3.3", optional = true }
-quote = { version = "1.0", optional = true }
-syn = { version = "1.0", features = ["full", "parsing", "extra-traits"], optional = true }
+anyhow = { version = "1.0" }
+heck = { version = "0.3.3" }
+quote = { version = "1.0" }
+syn = { version = "1.0", features = ["full", "parsing", "extra-traits"] }
 borsh = "0.9.1"
 
 [dev-dependencies]
