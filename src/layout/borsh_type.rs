@@ -58,23 +58,7 @@ fn proc_vec_deque(x: String) -> Result<BorshType, anyhow::Error> {
     Ok(BorshType::Vec(Box::new(inner_type)))
 }
 
-fn proc_arr_old(x: String) -> Result<BorshType, anyhow::Error> {
-    let inner = x
-        .strip_prefix('[')
-        .unwrap()
-        .strip_suffix(']')
-        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ']'"))?;
-    let (array_type_str, array_len_str) = inner
-        .rsplit_once(';')
-        .ok_or_else(|| anyhow::anyhow!("invalid array, missing ';'"))?;
-    let array_type = BorshType::from_str(array_type_str)?;
-    let array_len = array_len_str.parse::<usize>()?;
-    if let BorshType::U8 = array_type {
-        Ok(BorshType::FixedBytes(array_len))
-    } else {
-        Ok(BorshType::FixedArray(Box::new(array_type), array_len))
-    }
-}
+
 
 fn proc_arr(x: String) -> Result<BorshType, anyhow::Error> {
     let (array_type_str, array_len_str) = split_2tokens_in_angular_brackets(&x)?;
@@ -125,8 +109,6 @@ fn if_starts_with_patterns(input: String) -> Result<BorshType, anyhow::Error> {
         x if x.strip_prefix("Option<").is_some() => proc_option(x),
         x if x.strip_prefix("Vec<").is_some() => proc_vec(x),
         x if x.strip_prefix("VecDeque<").is_some() => proc_vec_deque(x),
-        // TODO: replace with legit parsing of type
-        x if x.strip_prefix('[').is_some() => proc_arr_old(x),
         x if x.strip_prefix("Array<").is_some() => proc_arr(x),
         x if x.strip_prefix("HashMap<").is_some() => proc_hash_map(x),
         _ => Ok(BorshType::Custom(input)),
@@ -248,13 +230,14 @@ mod test {
             BorshType::Option(Box::new(BorshType::U64))
         );
         assert_eq!(
-            BorshType::from_str("Vec<Option<[Pubkey; 2]>>").unwrap(),
+            BorshType::from_str("Vec<Option<Array<Pubkey, 2>>>").unwrap(),
+
             BorshType::Vec(Box::new(BorshType::Option(Box::new(
                 BorshType::FixedArray(Box::new(BorshType::Pubkey), 2)
             ))))
         );
         assert_eq!(
-            BorshType::from_str("[[Option<i32>; 2]; 4]").unwrap(),
+            BorshType::from_str("Array<Array<Option<i32>, 2>, 4>").unwrap(),
             BorshType::FixedArray(
                 Box::new(BorshType::FixedArray(
                     Box::new(BorshType::Option(Box::new(BorshType::U32))),
@@ -272,7 +255,7 @@ mod test {
         );
 
         assert_eq!(
-            BorshType::from_str("[u8; 32]").unwrap(),
+            BorshType::from_str("Array<u8, 32>").unwrap(),
             BorshType::FixedBytes(32),
         );
     }
@@ -304,14 +287,14 @@ mod test {
         );
 
         assert_eq!(
-            BorshType::from_str("[[Option<i32>; 2]; 4]")
+            BorshType::from_str("Array<Array<Option<i32>, 2>, 4>")
                 .unwrap()
                 .to_borsh_schema(),
             "[[{ kind: 'option', type: 'u32' }, 2], 4]"
         );
 
         assert_eq!(
-            BorshType::from_str("HashMap<[u8; 32], Pubkey>")
+            BorshType::from_str("HashMap<Array<u8, 32>, Pubkey>")
                 .unwrap()
                 .to_borsh_schema(),
             "{ kind: 'map', key: [32], value: 'publicKeyHack' }"
@@ -344,9 +327,9 @@ mod test {
         assert_eq!(ty.to_class_type(), "BN");
         let ty = BorshType::from_str("Option<Vec<Pubkey>>").unwrap();
         assert_eq!(ty.to_class_type(), "PublicKey[] | null");
-        let ty = BorshType::from_str("[bool; 5]").unwrap();
+        let ty = BorshType::from_str("Array<bool, 5>").unwrap();
         assert_eq!(ty.to_class_type(), "boolean[]");
-        let ty = BorshType::from_str("HashMap<[u8; 32], PublicKey>").unwrap();
+        let ty = BorshType::from_str("HashMap<Array<u8, 32>, PublicKey>").unwrap();
         assert_eq!(dbg!(ty.to_class_type()), "Map<Uint8Array, PublicKey>");
     }
 }

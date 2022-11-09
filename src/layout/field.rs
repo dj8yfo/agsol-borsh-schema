@@ -70,7 +70,7 @@ mod test {
     fn complex_field_construction() {
         let field = LayoutField::from_declaration(
             Some(&"optional_accounts".to_owned()),
-            "[Option<Pubkey>; 3]",
+            "Array<Option<Pubkey>, 3>",
             None,
         )
         .unwrap();
