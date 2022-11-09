@@ -118,6 +118,6 @@ mod test {
             name: "fieldGamma".to_owned(),
             ty: BorshType::Option(Box::new(BorshType::FixedBytes(32))),
         };
-        assert_eq!(field.to_class_field(), "fieldGamma: [32] | null");
+        assert_eq!(field.to_class_field(), "fieldGamma: Uint8Array | null");
     }
 }

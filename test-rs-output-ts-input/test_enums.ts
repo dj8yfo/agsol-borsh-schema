@@ -35,7 +35,7 @@ const testEnumVariantE = new TestEnumVariantE({
 const testEnumVariantF = new TestEnumVariantF({
     unnamed_0: new RandomStruct({
         fieldA: "a test string",
-        fieldB: Uint8Array.from([5, 6]),
+        fieldB: Uint8Array.from([5, 6, 20, 21]),
     })
 });
 const testEnumVariantG = new TestEnumVariantG({

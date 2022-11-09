@@ -26,9 +26,10 @@ const id0 = [
     0, 0
 ];
 
-let map0 = new Map();
+let map0 = new Map<Uint8Array, PublicKey>();
 const pubkey0 = new PublicKey(pubkey);
-map0.set(id0, pubkey0);
+map0.set(Uint8Array.from(id0), pubkey0);
+
 const id1 = [
     100, 101, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -37,7 +38,7 @@ const id1 = [
 ];
 pubkey[1] = 11;
 const pubkey1 = new PublicKey(pubkey);
-map0.set(id1, pubkey1);
+map0.set(Uint8Array.from(id1), pubkey1);
 const id2 = [
     100, 101, 102, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -46,7 +47,7 @@ const id2 = [
 ];
 pubkey[2] = 22;
 const pubkey2 = new PublicKey(pubkey);
-map0.set(id2, pubkey2);
+map0.set(Uint8Array.from(id2), pubkey2);
 const id3 = [
     100, 101, 102, 103, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -55,7 +56,7 @@ const id3 = [
 ];
 pubkey[3] = 33;
 const pubkey3 = new PublicKey(pubkey);
-map0.set(id3, pubkey3);
+map0.set(Uint8Array.from(id3), pubkey3);
 const id4 = [
     100, 101, 102, 103, 104, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -64,15 +65,15 @@ const id4 = [
 ];
 pubkey[4] = 44;
 const pubkey4 = new PublicKey(pubkey);
-map0.set(id4, pubkey4);
+map0.set(Uint8Array.from(id4), pubkey4);
 
-let map1 = new Map();
+let map1 = new Map<string, number | null>();
 map1.set("hello", 23);
 map1.set("bello", 33);
 map1.set("yello", null);
 map1.set("zello", 44);
 
-let map2 = new Map();
+let map2 = new Map<number, string>();
 map2.set(168, "value");
 map2.set(169, "values");
 

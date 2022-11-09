@@ -195,7 +195,7 @@ impl BorshType {
             Self::Pubkey => "PublicKey".to_owned(),
             Self::Vec(inner) => format!("{}[]", inner.to_class_type()),
             Self::FixedArray(inner, _len) => format!("{}[]", inner.to_class_type()),
-            Self::FixedBytes(len) => format!("[{}]", len),
+            Self::FixedBytes(_len) => "Uint8Array".to_owned(),
             Self::Option(inner) => {
                 format!("{} | null", inner.to_class_type())
             }
@@ -347,6 +347,6 @@ mod test {
         let ty = BorshType::from_str("[bool; 5]").unwrap();
         assert_eq!(ty.to_class_type(), "boolean[]");
         let ty = BorshType::from_str("HashMap<[u8; 32], PublicKey>").unwrap();
-        assert_eq!(dbg!(ty.to_class_type()), "Map<[32], PublicKey>");
+        assert_eq!(dbg!(ty.to_class_type()), "Map<Uint8Array, PublicKey>");
     }
 }

@@ -23,7 +23,7 @@ struct TestData {
 #[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct RandomStruct {
     field_a: String,
-    field_b: Option<[u8; 2]>,
+    field_b: Option<[u8; 4]>,
 }
 
 #[derive(BorshSchema, BorshSerialize, BorshDeserialize, Clone, Debug)]
@@ -74,7 +74,7 @@ fn generate_layout_from_this_file() {
     let enum_variant_e = TestEnum::VariantE(None);
     let enum_variant_f = TestEnum::VariantF(RandomStruct {
         field_a: "a test string".to_string(),
-        field_b: Some([5, 6]),
+        field_b: Some([5, 6, 20, 21]),
     });
 
     pubkey_array[31] = 22;
